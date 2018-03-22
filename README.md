@@ -1,4 +1,4 @@
-#                                                简易虚拟机设计报告
+# 简易虚拟机设计报告
 
 ## 一、虚拟机硬件结构
 
@@ -7,7 +7,7 @@
 1. 整体框架
 
 ![img](http://oy0lnxej5.bkt.clouddn.com/vm1.png)
-                                                                              **Figure 1: 数据通路**
+                                                                         
 
 2. 简要概述
    - 虚拟机整体硬件框架由`CPU`、`内存`、`I/O`三部分构成，其中`CPU`部分又由`寄存器组`、`运算器`组成。
@@ -27,6 +27,7 @@
 3. `ALU`提供基本的算术逻辑运算，从而实现指令系统的功能。
 4. 虚拟机的`CPU`为**64位**， 因此将寄存器设置为能够存储64位数据（方便统一处理，CC也设置为64位）。
 
+
 ###（三）主存储器
 
 1. 虚拟机的主存储器大小为$1024 * 1024$字节，即$1MB$存储空间，每个存储单元为$8bits$。
@@ -37,9 +38,10 @@
 
    |  分区名称  |        功能        |       地址范围       |
    | :--------: | :----------------: | :------------------: |
-   | 程序代码区 |    存储指令序列    | $0x00000\sim0x3FFFF$ |
-   |   数据区   | 存储程序需要的数据 | $0x40000\sim0xAFFFF$ |
-   |    栈区    |       程序栈       | $0xB0000\sim0xFFFFF$ |
+   | 程序代码区 |    存储指令序列    | 0x00000~0x3FFFF |
+   |   数据区   | 存储程序需要的数据 | 0x40000~0xAFFFF |
+   |    栈区    |       程序栈       | 0xB0000~0xFFFFF |
+
 
 ###（四）I/O
 
@@ -76,34 +78,34 @@
    |    指令    | 操作数类别 |                        说明                         |
    | :--------: | :--------: | :-------------------------------------------------: |
    |    HLT     |     无     |                      停机指令                       |
-   | RRMOV S,D  |     RR     |              一般传送，D:arrow_left:S               |
-   | IRMOV S,D  |     IR     |              一般传送，D:arrow_left:S               |
-   | RMMOV S,D  |     RM     |              一般传送，D:arrow_left:S               |
-   | MRMOV S,D  |     MR     |              一般传送，D:arrow_left:S               |
-   |   PUSH S   |     R      |            入栈，*SP:arrow_left:S，SP++             |
-   |   POP D    |     R      |            出栈，D:arrow_left:*​SP，SP--             |
-   |   INC D    |     R      |               自增，D:arrow_left:D+1                |
-   |   DEC D    |     R      |               自减，D:arrow_left:D-1                |
-   |  ADD S,D   |     RR     |                加，D:arrow_left:D+S                 |
-   |  SUB S,D   |     RR     |                减，D:arrow_left:D-S                 |
-   |  IMUL S,D  |     RR     |                乘，D:arrow_left:D*S                 |
-   |  DIV S,D   |     RR     |                除，D:arrow_left:D/S                 |
-   |   NOT D    |     R      |                 非，D:arrow_left:~D                 |
-   |  XOR S,D   |     RR     |               异或，D:arrow_left:D^S                |
-   |   OR S,D   |     RR     |                或，D:arrow_left:D\|S                |
-   |  AND S,D   |     RR     |                与，D:arrow_left:D&S                 |
-   |  SAL k,D   |     IR     |               左移，D:arrow_left:D<<k               |
-   |  SAR k,D   |     IR     |         右移，D:arrow_left:D>>k（算数右移）         |
+   | RRMOV S,D  |     RR     |              一般传送，D<----S               |
+   | IRMOV S,D  |     IR     |              一般传送，D<----S               |
+   | RMMOV S,D  |     RM     |              一般传送，D<----S               |
+   | MRMOV S,D  |     MR     |              一般传送，D<----S               |
+   |   PUSH S   |     R      |            入栈，*SP<----S，SP++             |
+   |   POP D    |     R      |            出栈，D<----*​SP，SP--             |
+   |   INC D    |     R      |               自增，D<----D+1                |
+   |   DEC D    |     R      |               自减，D<----D-1                |
+   |  ADD S,D   |     RR     |                加，D<----D+S                 |
+   |  SUB S,D   |     RR     |                减，D<----D-S                 |
+   |  IMUL S,D  |     RR     |                乘，D<----D*S                 |
+   |  DIV S,D   |     RR     |                除，D<----D/S                 |
+   |   NOT D    |     R      |                 非，D<----~D                 |
+   |  XOR S,D   |     RR     |               异或，D<----D^S                |
+   |   OR S,D   |     RR     |                或，D<----D\|S                |
+   |  AND S,D   |     RR     |                与，D<----D&S                 |
+   |  SAL k,D   |     IR     |               左移，D<----D<<k               |
+   |  SAR k,D   |     IR     |         右移，D<----D>>k（算数右移）         |
    | CMP S1,S2  |     RR     |                     比较，S2-S1                     |
    | TEST S1,S2 |     RR     |                     测试，S1&S2                     |
-   |  JMP ADDR  |     R      |      无条件转移，PC:arrow_left:ADDR（下同），       |
+   |  JMP ADDR  |     R      |      无条件转移，PC<----ADDR（下同），       |
    |  JE ADDR   |     R      |                 条件转移，条件：ZF                  |
    |  JNE ADDR  |     R      |                 条件转移，条件：~ZF                 |
    |  JLE ADDR  |     R      |             条件转移，条件：(SF^OF)\|ZF             |
    |  JL ADDR   |     R      |                条件转移，条件：SF^OF                |
    |  JGE ADDR  |     R      |              条件转移，条件：~(SF^OF)               |
    |  JG ADDR   |     R      |            条件转移，条件：~(SF^OF)&~ZF             |
-   | CMOVLE S,D |     RR     | 条件传送，条件：(SF^OF)\|ZF，D:arrow_left:S（下同） |
+   | CMOVLE S,D |     RR     | 条件传送，条件：(SF^OF)\|ZF，D<----S（下同） |
    | CMOVL S,D  |     RR     |                条件传送，条件：SF^OF                |
    | CMOVE S,D  |     RR     |                 条件传送，条件：ZF                  |
    | CMOVNE S,D |     RR     |                 条件传送，条件：~ZF                 |
