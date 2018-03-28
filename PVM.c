@@ -15,19 +15,21 @@
 
 
 // Constant
-MEM_SIZE = 1024 * 1024; //Byte
-REG_NUM = 16;
-CODE_S = 0x0;
-DATA_S = 0x40000;
-STACK_S = 0x80000;
-PC_REG = 14
-SP_REG = 15 
+long long MEM_SIZE = 1024 * 1024; //Byte
+int REG_NUM = 16;
+int CODE_S = 0x0;
+int DATA_S = 0x40000;
+int STACK_S = 0x80000;
+int PC_REG = 14;
+int SP_REG = 15 ;
 //GLOBAL VARIABLE
-FLAG_JMP = 0
+int FLAG_JMP = 0;
 
 // Memory
-uint8_t *MEM;
-
+uint64_t *MEM;
+int ZF = 0;
+int SF = 0;
+int OF = 0;
 
 
 //Register
@@ -35,326 +37,218 @@ uint64_t *REG;
 
 // Instruction DS
 typedef struct instruction {
-	char opName[5];
+	char opName[20];
 	char S[20];
 	char D[20];
 }ins; 
 // Temporary code section
-ins *INS;
+ins INS[10000];
 
 int mode_interpret(char S[20], char D[20], uint64_t *s, uint64_t *d) {
 	int mode = 0;
 	return mode;
 }
 
-void op_exec(ins *I) {
-	switch (I->opName) {
-		case "MOV": {
-			uint64_t s, d;
-			int mode = mode_interpret(I->S, I->D, &s, &d);
-			switch (mode) {
-				case RR: {  
-					REG[d] = REG[s];                                                                                                               
-					break;
-				}
-				case RM: {
-					MEM[d] = REG[s];
-					break;
-				} 
-				case IM: {
-					MEM[d] = s;
-					break;
-				}
-				case IR: {
-					REG[d] = s;
-					break;
-				}
-				case MR: {
-					REG[s] = MEM[d];
-					break;
-				}
-			}
-			break;
-		}
-		case "PUSH": {
-			uint64_t s;
-			int mode = mode_interpret(I->S, NULL, &s, NULL);
-			switch (mode) {
-				case IN: REG[SP_REG] = s; break;
-				case MN: REG[SP_REG] = MEM[s]; break;
-				case RN: REG[SP_REG] = REG[s]; break; 
-			} 
-			break;
-		}
-		case "POP": {
-			uint64_t d;
-			int mode = mode_interpret(NULL, I->D, NULL, &d);
-			switch (mode) {
-				case RN: REG[d] = REG[SP_REG]; break;
-				case MN: MEM[d] = REG[SP_REG]; break; 
-			}
-			break;
-		}
-		case "INC": {
-			uint64_t d;
-			int mode = mode_interpret(NULL, I->D, NULL, &d);
-			switch (mode) {
-				case MN: MEM[d]++; break;
-				case RN: REG[d]++; break;
-			} 
-			break;
-		}
-		case "DEC": {
-			uint64_t d;
-			int mode = mode_interpret(NULL, I->D, NULL, &d);
-			switch (mode) {
-				case MN: MEM[d]--; break;
-				case RN: REG[d]--; break;
-			} 
-			break;
-		}
-		case "NOT": {
-			uint64_t d;
-			int mode = mode_interpret(NULL, I->D, NULL, &d);
-			switch (mode) {
-				case MN: MEM[d] = !MEM[d]; break;
-				case RN: REG[d] = !REG[d]; break;
-			} 
-			break;
-		}
-		case "ADD": {
-			uint64_t s,d;
-			int mode = mode_interpret(I->S, I->D, &s, &d);
-			switch (mode) {
-				case IR: REG[d] += s; break;
-				case IM: MEM[d] += s; break;
-				case RR: REG[d] += REG[s]; break;
-				case RM: MEM[d] += REG[s]; break;
-				case MR: REG[d] += MEM[s]; break;
-			}
-			break;
-		}
-		case "SUB": {
-			uint64_t s,d;
-			int mode = mode_interpret(I->S, I->D, &s, &d);
-			switch (mode) {
-				case IR: REG[d] -= s; break;
-				case IM: MEM[d] -= s; break;
-				case RR: REG[d] -= REG[s]; break;
-				case RM: MEM[d] -= REG[s]; break;
-				case MR: REG[d] -= MEM[s]; break;
-			}
-			break;
-		}
-		case "IMUL": {
-			uint64_t s,d;
-			int mode = mode_interpret(I->S, I->D, &s, &d);
-			switch (mode) {
-				case IR: REG[d] *= s; break;
-				case IM: MEM[d] *= s; break;
-				case RR: REG[d] *= REG[s]; break;
-				case RM: MEM[d] *= REG[s]; break;
-				case MR: REG[d] *= MEM[s]; break;
-			}
-			break;
-		}
-		case "DIV": {
-			uint64_t s,d;
-			int mode = mode_interpret(I->S, I->D, &s, &d);
-			switch (mode) {
-				case IR: REG[d] /= s; break;
-				case IM: MEM[d] /= s; break;
-				case RR: REG[d] /= REG[s]; break;
-				case RM: MEM[d] /= REG[s]; break;
-				case MR: REG[d] /= MEM[s]; break;
-			}
-			break;
-		}
-		case "XOR": {
-			uint64_t s,d;
-			int mode = mode_interpret(I->S, I->D, &s, &d);
-			switch (mode) {
-				case IR: REG[d] ^= s; break;
-				case IM: MEM[d] ^= s; break;
-				case RR: REG[d] ^= REG[s]; break;
-				case RM: MEM[d] ^= REG[s]; break;
-				case MR: REG[d] ^= MEM[s]; break;
-			}
-			break;
-		}
-		case "OR": {
-			uint64_t s,d;
-			int mode = mode_interpret(I->S, I->D, &s, &d);
-			switch (mode) {
-				case IR: REG[d] |= s; break;
-				case IM: MEM[d] |= s; break;
-				case RR: REG[d] |= REG[s]; break;
-				case RM: MEM[d] |= REG[s]; break;
-				case MR: REG[d] |= MEM[s]; break;
-			}
-			break;
-		}
-		case "AND": {
-			uint64_t s,d;
-			int mode = mode_interpret(I->S, I->D, &s, &d);
-			switch (mode) {
-				case IR: REG[d] &= s; break;
-				case IM: MEM[d] &= s; break;
-				case RR: REG[d] &= REG[s]; break;
-				case RM: MEM[d] &= REG[s]; break;
-				case MR: REG[d] &= MEM[s]; break;
-			}
-			break;
-		}
-		case "SAL": {
-			uint64_t s,d;
-			int mode = mode_interpret(I->S, I->D, &s, &d);
-			switch (mode) {
-				case IR: REG[d] << s; break;
-				case IM: MEM[d] << s; break;
-				case RR: REG[d] << REG[s]; break;
-				case RM: MEM[d] << REG[s]; break;
-				case MR: REG[d] << MEM[s]; break;
-			}
-			break;
-		}
-		case "SAR": {
-			uint64_t s,d;
-			int mode = mode_interpret(I->S, I->D, &s, &d);
-			switch (mode) {
-				case IR: REG[d] >> s; break;
-				case IM: MEM[d] >> s; break;
-				case RR: REG[d] >> REG[s]; break;
-				case RM: MEM[d] >> REG[s]; break;
-				case MR: REG[d] >> MEM[s]; break;
-			}
-			break;
-		}
-		case "CMP": {
-			
-			break;
-		}
-		case "TEST": {
-			break;
-		}
-		case "SETE": {
-			break;
-		}
-		case "SETNE": {
-			break;
-		}
-		case "SETS": {
-			break;
-		}
-		case "SETNS": {
-			break;
-		}
-		case "SETG": {
-			break;
-		}
-		case "SETGE": {
-			break;
-		}
-		case "SETL": {
-			break;
-		}
-		case "SETLE": {
-			break;
-		}
-		case "JMP": {
-			break;
-		}
-		case "JE": {
-			break;
-		}
-		case "JNE": {
-			break;
-		} 
-		case "JS": {
-			break;
-		}
-		case "JNS": {
-			break;
-		}
-		case "JG": {
-			break;
-		}
-		case "JGE": {
-			break;
-		}
-		case "JL": {
-			break;
-		}
-		case "JLE": {
-			break;
-		}
-		case "RET": {  
-			break;
-		}
-		case "STP": {
-			break;
-		}
-		case "ECHO": {
-			break;
-		}
-	}
-}
-
-
 
 void Initial() {
-	MEM = (uint8_t *)malloc(sizeof(uint8_t) * MEM_SIZE);
+	MEM = (uint64_t *)malloc(sizeof(uint64_t) * MEM_SIZE);
+
 	for (int i = 0; i < MEM_SIZE; i++) MEM[i] = 0;                    // Memory Initial
 	
 	REG = (uint64_t *)malloc(sizeof(uint64_t) * REG_NUM);
 	for (int i = 0; i < REG_NUM; i++) REG[i] = 0;
 	
-	REG[PC_REG]= CODE_S;
+	REG[PC_REG]= 0;
 	REG[SP_REG] = STACK_S;
 	
-	INS = (ins *)malloc(sizeof(ins) * (DATA_S - STACK_S)); PC = 0;   //temporary 
-	printf("Initial Finished!\nPress any key to continue.");
-	getchar();	
+	printf("Initial Finished!\nPress any key to continue.\n");
 }
 
 void Load(FILE *file) {    // 暂时将代码区另开结构体数组，后续将其转换为二进制形式与栈、数据统一 
 	int i = 0;
-	while (fscanf(file, "%s %s %s", INS[i++].opName, INS[i++].S, INS[i++].D) == 3) ;
-	// 临时：  指令必须写成  这样的三个字符串 
-	printf("Load Finished! Total Ins number:%d\nPress any key to continue.", i);
+	char a[10],b[10],c[10];
+	while (fscanf(file, "%s %s %s", &INS[i].opName, &INS[i].S, &INS[i].D) >= 1) {
+		printf("%s %s %s\n",INS[i].opName, INS[i].S, INS[i].D);
+		i++;
+	}
+	printf("\n...Load Finished! Total Ins number:%d\nPress any key to continue.\n", i);
 	getchar();
+}
+
+void monitor() {
+	//REG
+	for (int i = 0;i < REG_NUM;i++) {
+		printf("%d  %d\n",i, REG[i]);
+	}
+	printf("\n");
+	//CC
+	printf("ZF:%d\n",ZF);
+	
+	getchar();
+}
+
+int toNum(char *s) {
+    int l = strlen(s);
+	int rnt = 0;
+	for (int i = 0; i < l; i++) {
+		rnt *= 10;
+		rnt += (s[i] - '0');
+	}
+	return rnt;
+}
+
+void op_exec(ins *I) {
+	if ( !strcmp(I->opName,"RRMOV")) {
+		int s = toNum(I->S);
+		int d = toNum(I->D);
+		REG[d] = REG[s];
+	}
+	if ( !strcmp(I->opName,"IRMOV")) {
+		int s = toNum(I->S);
+		int d = toNum(I->D);
+		REG[d] = s;
+	}
+    if ( !strcmp(I->opName,"RMMOV")) {
+		int s = toNum(I->S);
+		int d = REG[toNum(I->D)];
+		MEM[d] = REG[s];
+	}
+    if ( !strcmp(I->opName,"MRMOV")) {
+		int s = REG[toNum(I->S)];
+		int d = toNum(I->D);
+		REG[d] = MEM[s];
+	}
+    if (!strcmp(I->opName,"PUSH")) {
+        int s = toNum(I->S);
+        MEM[REG[SP_REG++]] = REG[s];
+    }
+    if (!strcmp(I->opName,"POP")) {
+        int d = toNum(I->S);
+        REG[d] = MEM[REG[SP_REG--]];
+    }
+    if (!strcmp(I->opName,"INC")) {
+        int d = toNum(I->S);
+        REG[d]++;
+    }
+    if (!strcmp(I->opName,"DEC")) {
+        int d = toNum(I->S);
+        REG[d]--;
+    }
+	if ( !strcmp(I->opName,"ADD")){
+		int s = toNum(I->S);
+		int d = toNum(I->D);
+		REG[d] = REG[d] + REG[s];
+	}
+    if ( !strcmp(I->opName,"SUB")){
+		int s = toNum(I->S);
+		int d = toNum(I->D);
+		REG[d] = REG[d] - REG[s];
+	}
+    if ( !strcmp(I->opName,"IMUL")){
+		int s = toNum(I->S);
+		int d = toNum(I->D);
+		REG[d] = REG[d] * REG[s];
+	}
+    if ( !strcmp(I->opName,"DIV")){
+		int s = toNum(I->S);
+		int d = toNum(I->D);
+		REG[d] = REG[d] / REG[s];
+	}
+    if (!strcmp(I->opName,"NOT")) {     //some problems maybe
+        int d = toNum(I->S);
+        REG[d] = ~REG[d];
+    }
+    if (!strcmp(I->opName,"XOR")) {
+        int s = toNum(I->S);
+        int d = toNum(I->D);
+        REG[d] = REG[d] ^ REG[s];
+    }
+    if (!strcmp(I->opName,"OR")) {
+        int s = toNum(I->S);
+        int d = toNum(I->D);
+        REG[d] = REG[d] | REG[s];
+    }
+    if (!strcmp(I->opName,"AND")) {
+        int s = toNum(I->S);
+        int d = toNum(I->D);
+        REG[d] = REG[d] & REG[s];
+    }
+    if (!strcmp(I->opName,"SAL")) {
+        int k = toNum(I->S);
+        int d = toNum(I->D);
+        REG[d] = REG[d] << k;
+    }
+    if (!strcmp(I->opName,"SAR")) {
+        int k = toNum(I->S);
+        int d = toNum(I->D);
+        REG[d] = REG[d] >> k;
+    }
+    if (!strcmp(I->opName,"CMP")) {
+        int s = toNum(I->S);
+        int d = toNum(I->S);
+        //减法的 状态修改部分
+    }
+    if (!strcmp(I->opName,"JMP")) {
+        int addr = REG[toNum(I->S)];
+        REG[PC_REG] = addr; 
+    }
+    if (!strcmp(I->opName,"JE") && ZF) {
+        int addr = REG[toNum(I->S)];
+        REG[PC_REG] = addr; 
+    }
+    if (!strcmp(I->opName,"JNE") && !ZF) {
+        int addr = REG[toNum(I->S)];
+        REG[PC_REG] = addr; 
+    }
+    if (!strcmp(I->opName,"JLE") && ((SF^OF)|ZF) ) {
+        int addr = REG[toNum(I->S)];
+        REG[PC_REG] = addr; 
+    }
+    if (!strcmp(I->opName,"JL") && (SF^OF) ) {
+        int addr = REG[toNum(I->S)];
+        REG[PC_REG] = addr; 
+    }
+    if (!strcmp(I->opName,"JGE") && (!(SF^OF)) ) {
+        int addr = REG[toNum(I->S)];
+        REG[PC_REG] = addr; 
+    }
+    if (!strcmp(I->opName,"JG") && ((!(SF^OF))|(!ZF)) ) {
+        int addr = REG[toNum(I->S)];
+        REG[PC_REG] = addr; 
+    }
+    if (!strcmp(I->opName,"RECHO")) {
+        int s = toNum(I->S);
+        printf("REG %d:%d\n",s,REG[s]);
+    }
+    if (!strcmp(I->opName,"MECHO")) {
+        int s = REG[toNum(I->S)];
+        printf("MEM %d:%d\n",s,MEM[s]);
+    }
+    if (!strcmp(I->opName,"INPUT")) {
+        int s = REG[toNum(I->S)];
+        scanf("Please input the data:\n>%d",&MEM[s]);
+    }
 }
 
 void Run() {
 	ins *currentIns = NULL;
-	currentIns = &INS[PC];
-	while ( !strcmp(currentIns->opName, "STP") ) {
+	currentIns = &INS[REG[PC_REG]];
+	while ( strcmp(currentIns->opName, "HLT") ) {
+		printf("\n----%s %s %s-----\n",currentIns->opName,currentIns->S,currentIns->D);
+	
 		op_exec(currentIns);
+		monitor();
 		if (!FLAG_JMP)
-			PC++;
-		currentINs = &INS[PC];
+			REG[PC_REG]++;
+		currentIns = &INS[REG[PC_REG]];
 	}
 } 
 
-int main(int argc, char **argv)
-{
-	char asm_filename[20];
-	
-	if (argc != 2) {
-		printf("Input Error!\n");
-		exit(-1);
-	}
-	
-	strcpy(filename, argc[1]);
-	
-	FILE *asm_file = fopen(asm_filename, "r");
-	if (asm_file == NULL) {
-		printf("The file %s doesn't exist\n", argv[1]);
-		exit(-1)
-	}
-	
-	Initialize();
-	Load(asm_file);
+int main(void)
+{	
+	FILE *file = fopen("pro.txt","r");
+	Initial();
+	Load(file);
 	Run();
 	
 	return 0;

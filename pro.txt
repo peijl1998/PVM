@@ -1,0 +1,4 @@
+IRMOV  10 1
+IRMOV  10 2
+ADD 1 2
+HLT
