@@ -1,4 +1,36 @@
-IRMOV  10 1
-IRMOV  10 2
-ADD 1 2
+IRMOV 10 5 
+PUSH 5
+POP 11
+IRMOV 2 8 //R[5] = &a[0]; R[8] = &n
+IRMOV 2 7 //R[7] = i = 2
+IRMOV 0 1
+IRMOV 1 2 // R[1] = 0; R[2] = 1;
+INPUT 8
+MRMOV 8 6 // R[6] = n
+RMMOV 1 5
+INC 5
+RMMOV 2 5
+DEC 5  // a[0] = r1; a[1] = r2
+IRMOV 0 4
+ADD 1 4
+ADD 2 4
+RRMOV 4 3  //r3 = r1 + r2
+RRMOV 2 1  // r1 = r2
+RRMOV 3 2  // r2 = r3
+IRMOV 0 9
+ADD 5 9
+ADD 7 9
+RMMOV 3 9 //a[base + i] = r[3]
+INC 7
+CMP 6 7
+JL 13
+IRMOV 0 7 // i = 0
+IRMOV 0 9
+ADD 5 9
+ADD 7 9
+MOUT 9
+INC 7
+CMP 6 7
+JL 27
 HLT
+
