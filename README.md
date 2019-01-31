@@ -54,3 +54,9 @@ Simple-VM提供了一个输入框，方便输入指令的执行，当虚拟机�
 ## （6） **个性化配置**
 
 Simple-VM提供了一定的配置功能，在启动界面可以选择进入设置界面从而进行一些虚拟机的配置，可以更改数据区大小、代码区大小、堆栈区起始位置、寄存器数量、虚拟机名称，所谓虚拟机名称是指在运行界面子标题的字符串，没有实际功能。
+
+
+
+## 界面展示，详情见文档。
+![p1](https://github.com/HelloSilicat/PVM/edit/master/1.png)
+![p2](https://github.com/HelloSilicat/PVM/edit/master/2.png)
