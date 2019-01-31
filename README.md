@@ -58,5 +58,5 @@ Simple-VM提供了一定的配置功能，在启动界面可以选择进入设�
 
 
 ## 界面展示，详情见文档。
-![p1](https://github.com/HelloSilicat/PVM/edit/master/1.png)
-![p2](https://github.com/HelloSilicat/PVM/edit/master/2.png)
+![p1](https://github.com/HelloSilicat/PVM/blob/master/1.png)
+![p2](https://github.com/HelloSilicat/PVM/blob/master/2.png)
